@@ -1,6 +1,7 @@
 # NuGet Packages
-./packages
+packages/
+.vs/
 
 # Build folders
-./ZMLInstaller/obj/
-./ZMLInstaller/bin/
+ZMLInstaller/obj/
+ZMLInstaller/bin/
