@@ -36,6 +36,7 @@
             this.Step2Label = new System.Windows.Forms.Label();
             this.Step3Label = new System.Windows.Forms.Label();
             this.Step3InstallButton = new System.Windows.Forms.Button();
+            this.UninstallZMLButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // OpenDirButton
@@ -116,6 +117,19 @@
             this.Step3InstallButton.UseVisualStyleBackColor = false;
             this.Step3InstallButton.Click += new System.EventHandler(this.Step3InstallButton_Click);
             // 
+            // UninstallZMLButton
+            // 
+            this.UninstallZMLButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(40)))), ((int)(((byte)(43)))));
+            this.UninstallZMLButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(25)))), ((int)(((byte)(29)))));
+            this.UninstallZMLButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.UninstallZMLButton.Location = new System.Drawing.Point(10, 95);
+            this.UninstallZMLButton.Name = "UninstallZMLButton";
+            this.UninstallZMLButton.Size = new System.Drawing.Size(290, 23);
+            this.UninstallZMLButton.TabIndex = 7;
+            this.UninstallZMLButton.Text = "Uninstall ZML";
+            this.UninstallZMLButton.UseVisualStyleBackColor = false;
+            this.UninstallZMLButton.Click += new System.EventHandler(this.UninstallZMLButton_Click);
+            // 
             // InstallerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -124,6 +138,7 @@
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(17)))), ((int)(((byte)(17)))), ((int)(((byte)(17)))));
             this.ClientSize = new System.Drawing.Size(434, 235);
+            this.Controls.Add(this.UninstallZMLButton);
             this.Controls.Add(this.Step3InstallButton);
             this.Controls.Add(this.Step3Label);
             this.Controls.Add(this.Step2Label);
@@ -155,6 +170,7 @@
         private System.Windows.Forms.Label Step2Label;
         private System.Windows.Forms.Label Step3Label;
         private System.Windows.Forms.Button Step3InstallButton;
+        private System.Windows.Forms.Button UninstallZMLButton;
     }
 }
 

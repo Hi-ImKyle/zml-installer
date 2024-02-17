@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
@@ -48,11 +49,15 @@ namespace ZMLInstaller
                     taskDialog.WindowTitle = "ZML Installer";
                     taskDialog.MainIcon = TaskDialogIcon.Warning;
                     taskDialog.MainInstruction = "You appear to be on the LIVE version of the game";
-                    taskDialog.Content = "You need to be on the Moddable version. Here are the steps.\n\nOpen Steam.\nRight Click on CarX in your Library\nProperties\nBetas\nBeta participation, select \"moddable\"\n\nYou will need to wait for the game to update to the moddable version to try installing ZML again.";
+                    taskDialog.Content = "You need to be on the Moddable version. Here are the steps.\n\nOpen Steam.\nRight Click on CarX in your Library\nProperties at the bottom\nBetas on the left\nBeta participation, select \"moddable\"\n\nYou will need to wait for the game to update to the moddable version to try installing ZML again.";
+                    taskDialog.Buttons.Add(new TaskDialogButton("Help!"));
                     taskDialog.Buttons.Add(new TaskDialogButton("Retry"));
                     taskDialog.Buttons.Add(new TaskDialogButton(ButtonType.Cancel));
                     var result = taskDialog.ShowDialog();
-                    if (result.Text == "Retry")
+                    if(result.Text == "Help!")
+                    {
+                        Process.Start("https://zi9.github.io/zml/media/how2moddableplshelp.gif");
+                    }else if (result.Text == "Retry")
                     {
                        CheckSelectedPath(path);
                     }
@@ -75,7 +80,7 @@ namespace ZMLInstaller
             {
                 Step2DownloadProgress.Value = pe.ProgressPercentage;
             };
-            ZMLBundleData = await webClient.DownloadDataTaskAsync("https://cdn.discordapp.com/attachments/938577547514499152/1174746809831276684/ZML_Bundle_11-16.zip?ex=6596dbb9&is=658466b9&hm=49137a7696e649618db51b8a9bb7f54ec7955f0b50245a42a0afa68d15e4df76&");
+            ZMLBundleData = await webClient.DownloadDataTaskAsync("https://zi9.github.io/zml/versions/LIVE/Bundle.zip");
             this.Enabled = true;
             EnableStep3();
         }
@@ -114,6 +119,71 @@ namespace ZMLInstaller
             });
             MessageBox.Show("ZML Installed!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Enabled = true;
+
+            var kinoFile = Path.Combine(GameDir, "kino.ini");
+            var knBaseFolder = Path.Combine(GameDir, "kino", "mods", "KN_Base");
+            if (!File.Exists(kinoFile) && !Directory.Exists(knBaseFolder))
+                return;
+            var migrateDialog = MessageBox.Show("ZML detected that you have KSL/Kino installed. Would you like to migrate your Kino data to ZML?\n\nIf KSL/Kino was detected and you don't have it, just press No.", "Migrate KSL/Kino", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (migrateDialog != DialogResult.Yes)
+                return;
+            try
+            {
+                MigrateKino();
+                MessageBox.Show("Kino data migrated successfully", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }catch(Exception ex)
+            {
+                MessageBox.Show("Failed to migrate Kino data. Please do it manually.\n\n" + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void MigrateKino()
+        {
+            var kinoIni = Path.Combine(GameDir, "kino.ini");
+            var kinoFolder = Path.Combine(GameDir, "kino");
+            var knBaseFolder = Path.Combine(kinoFolder, "mods", "KN_Base");
+            var zmlFolder = Path.Combine(GameDir, "ZML", "mods");
+
+            File.Move(kinoIni, Path.Combine(GameDir, "kino-migrated.ini"));
+            Directory.Move(knBaseFolder, Path.Combine(zmlFolder, "KN_Base"));
+            Directory.Move(kinoFolder, Path.Combine(GameDir, "kino-migrated"));
+        }
+
+        private void UninstallZMLButton_Click(object sender, EventArgs e)
+        {
+            var folderBrowser = new VistaFolderBrowserDialog();
+            folderBrowser.Description = "Select your CarX Folder";
+            folderBrowser.UseDescriptionForTitle = true;
+
+            var result = folderBrowser.ShowDialog();
+            if (result != DialogResult.OK)
+            {
+                MessageBox.Show("Uninstall Cancelled", "Uninstall ZML", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var gameDir = folderBrowser.SelectedPath;
+            var gameExe = Path.Combine(gameDir, "Drift Racing Online.exe");
+
+            if(!File.Exists(gameExe))
+            {
+                MessageBox.Show("Invalid CarX Folder", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            var confirmUninstall = MessageBox.Show("Do you want to uninstall ZML?", "Uninstall ZML", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirmUninstall == DialogResult.Yes)
+            {
+                var winHttpDll = Path.Combine(gameDir, "winhttp.dll");
+                File.Delete(winHttpDll);
+
+                var deleteData = MessageBox.Show("Do you want to delete all ZML data? (mods, settings, etc)", "Uninstall ZML", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (deleteData == DialogResult.Yes)
+                {
+                    var zmlFolder = Path.Combine(gameDir, "ZML");
+                    Directory.Delete(zmlFolder, true);
+                }
+                MessageBox.Show("ZML Uninstalled", "Uninstall ZML", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
     }
 }
